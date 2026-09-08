@@ -4,6 +4,18 @@ Notable changes to the project. Newest first.
 
 ## Unreleased
 
+- Slice 3 — TREC 20-19 PDF fill (spec §10 step 3):
+  - `public/templates/trec-20-19.pdf` (the current official form) committed.
+  - `src/lib/trec/field-map.ts` — the 280 opaque AcroForm fields mapped to
+    spec §7 by index (built via `scripts/overlay-pdf-fields.mjs`).
+  - `src/lib/trec/fill-20-19.ts` — deterministic fill: FIXED values from
+    spec §7, ASK values from `deal.terms`, safe text overrides applied,
+    structural overrides raised as warnings. Signature names drawn on the
+    signature lines. Verified page-by-page against the form.
+  - `src/lib/trec/readiness.ts` — `dealWarnings(deal)`: what a human must
+    still complete/check. Shown on the deal page.
+  - `GET /api/deals/[id]/pdf` streams the filled PDF; deal page has a
+    Download button + the warnings list.
 - Slice 2 — deals + ask-every-time wizard + NL overrides (spec §6/§7):
   - `deals` table + RLS (`supabase/migrations/0002_deals.sql`). Each deal
     snapshots the standing defaults (`DEFAULT_PREFERENCES`, code constant for

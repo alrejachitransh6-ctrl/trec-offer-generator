@@ -84,6 +84,7 @@ src/
     counties/               list.ts (client-safe meta), registry.ts + adapters/
                             (server; dallas.ts is live, others manual-entry)
     deals/                  repo.ts (server CRUD), defaults.ts, override-catalog.ts
+    trec/                   field-map.ts (index→spec), fill-20-19.ts, readiness.ts
     pdf/fill-form.ts         generic, form-agnostic pdf-lib helpers
     validations/            legal-lookup.ts, deal.ts (zod)
     utils.ts
@@ -99,9 +100,13 @@ docs/architecture.md         fuller architecture notes
 - Path alias: `@/*` → `src/*`.
 - Read env vars through `src/lib/env.ts`, which validates and fails fast.
 - Supabase server client is **async** — `const supabase = await createClient()`.
-- Keep `src/lib/pdf/` form-agnostic. Document-specific field mappings are feature
-  code and live elsewhere (e.g. `src/lib/trec/` when created).
-- PDF templates are static assets in `public/templates/`.
+- Keep `src/lib/pdf/` form-agnostic. TREC 20-19-specific mapping is in
+  `src/lib/trec/`.
+- `src/lib/trec/field-map.ts` addresses fields by **index** in
+  `form.getFields()`. If `public/templates/trec-20-19.pdf` is replaced, re-run
+  `scripts/overlay-pdf-fields.mjs` and re-verify every index.
+- The PDF fill is deterministic — no AI (spec §5). It leaves anything it can't
+  safely set for a human and lists it in `dealWarnings()`.
 - **AI at runtime is deliberate and narrow** (spec §5): reading CAD pages and
   (later) NL overrides. Everything else — county routing, PDF fill, DB — is
   plain code. Model IDs only in `src/lib/ai/client.ts`.
@@ -143,8 +148,9 @@ shell, ensure `/opt/homebrew/bin` is in PATH.
   `ANTHROPIC_API_KEY` + magic-link setup already done.
 - Production Supabase project not created; prod-scoped Vercel env vars pending.
 - Tarrant / Denton / Collin CAD adapters (manual entry only for now).
-- Slice 3: TREC 20-19 field map + PDF fill (`docs/trec-field-inventory.txt`,
-  spec §7). Slice 4: editable `user_preferences` (replaces `DEFAULT_PREFERENCES`).
-- Deal has no "generate PDF" / "mark ready" flow yet; `terms` completeness is
-  not enforced (drafts save partial).
+- Slice 4: editable `user_preferences` (replaces `DEFAULT_PREFERENCES`).
+- Structural overrides (survey option, addenda checkboxes, §12B split) are not
+  auto-applied to the PDF — `dealWarnings()` flags them for manual completion.
+- Tarrant/Denton/Collin auto-lookup; `deals` completeness is not enforced
+  (partial drafts save and can still generate a partial PDF).
 - No tests configured.

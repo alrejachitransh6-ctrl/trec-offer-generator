@@ -87,14 +87,27 @@ not on it.
 
 ## PDF form filling
 
-`src/lib/pdf/fill-form.ts` provides form-agnostic helpers:
+`src/lib/pdf/fill-form.ts` has form-agnostic helpers (`inspectPdfFields`,
+`fillPdfForm`). Document-specific mapping lives under `src/lib/trec/`:
 
-- `inspectPdfFields(bytes)` — enumerate a template's fields and their types.
-- `fillPdfForm(bytes, values, options)` — set text / checkbox / radio / dropdown
-  fields, optionally flatten, and return the output bytes.
-
-Blank PDF templates live in `public/templates/`. Mapping specific documents onto
-`PdfFieldValues` is feature work and does not belong in `src/lib/pdf/`.
+- **`public/templates/trec-20-19.pdf`** — the current official TREC form. Its
+  280 AcroForm fields have meaningless Acrobat-generated names, so they're
+  addressed by **index** in `form.getFields()` (a stable order).
+- **`scripts/overlay-pdf-fields.mjs`** — renders the form with each field's
+  index + outline overlaid, and a legend. This is how `field-map.ts` was built;
+  re-run it if the template is ever swapped.
+- **`src/lib/trec/field-map.ts`** — index → meaning, verified against
+  `docs/spec.md` §7 and `docs/trec-field-inventory.txt`.
+- **`src/lib/trec/fill-20-19.ts`** — `fillTrec20_19(deal)`. Deterministic (no
+  AI). FIXED values straight from the spec; ASK from `deal.terms`; per-deal
+  overrides applied to safe text fields, with structural ones (survey option,
+  addenda boxes, §12B split) raised as `warnings` for manual completion.
+  Signature names are _drawn_ on the signature lines (they're `PDFSignature`
+  fields). `outputFileTracingIncludes` in `next.config.ts` bundles the template
+  with the API function.
+- **`src/lib/trec/readiness.ts`** — `dealWarnings(deal)`, a pure check surfaced
+  on the deal page and merged into the fill result.
+- **`GET /api/deals/[id]/pdf`** streams the download.
 
 ## Directory map
 
@@ -123,7 +136,9 @@ src/
     validations/       zod schemas (legal-lookup.ts, deal.ts)
     utils.ts
   types/
+    trec/              field-map.ts, fill-20-19.ts, readiness.ts (slice 3)
 supabase/migrations/   0001_profiles.sql, 0002_deals.sql
-public/templates/      blank TREC 20-19 PDF (added in a later slice)
+public/templates/      trec-20-19.pdf
+scripts/               inspect-pdf-fields.mjs, overlay-pdf-fields.mjs
 docs/spec.md           the feature spec (source of truth)
 ```
