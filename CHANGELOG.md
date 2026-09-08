@@ -16,6 +16,8 @@ Notable changes to the project. Newest first.
     "what the lookup read", editable fields, and a Confirm step.
   - `profiles` table + RLS (`supabase/migrations/0001_profiles.sql`).
   - Tarrant/Denton/Collin: manual-entry path until their adapters land.
+  - Staging wired: Supabase magic-link auth configured, `0001_profiles.sql`
+    applied, `ANTHROPIC_API_KEY` + `AUTH_ALLOWED_EMAILS` set in Vercel.
 - Project scaffold: Next.js 16 + Supabase (`@supabase/ssr`) + pdf-lib, production
   folder structure, validated env access.
 - Staging / production split: `staging` → Vercel Preview (branch-pinned), `main`
