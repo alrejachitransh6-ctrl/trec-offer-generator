@@ -40,7 +40,8 @@ export function DealWizard({ deal }: { deal: Deal }) {
   const [interpret, setInterpret] = useState<InterpretState>({ kind: "idle" });
   const [picked, setPicked] = useState<Set<number>>(new Set());
 
-  const buyerInfo = deal.defaults.buyerNameInfo;
+  const [buyerInfo, setBuyerInfo] = useState(deal.defaults.buyerNameInfo);
+  const [buyerSaveDefault, setBuyerSaveDefault] = useState(false);
 
   function patch(update: (t: DealTerms) => DealTerms) {
     setTerms(update);
@@ -60,8 +61,16 @@ export function DealWizard({ deal }: { deal: Deal }) {
           terms,
           overrideNote: extra?.note ?? note,
           overrides: extra?.overrides ?? overrides,
+          buyerNameInfo: buyerInfo,
         }),
       });
+      if (res.ok && buyerSaveDefault && buyerInfo.trim()) {
+        await fetch("/api/profile", {
+          method: "PUT",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ buyerNameInfo: buyerInfo.trim() }),
+        }).catch(() => {});
+      }
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
         setSave({
@@ -142,16 +151,35 @@ export function DealWizard({ deal }: { deal: Deal }) {
       {/* Buyer (standing default) */}
       <Section
         title="Buyer"
-        hint="Your standing default (TREC §1). Editable in Settings later, or override below for this deal."
+        hint="TREC §1 — the buyer entity, name + info block. This is your standing default; the per-deal override box can still change it for one deal."
       >
-        <p className="text-sm">
-          {overrides.find((o) => o.targetId === "buyer_name_info")?.newValue ||
-            buyerInfo || (
-              <span className="text-amber-600 dark:text-amber-400">
-                Not set — will be blank on the contract.
-              </span>
-            )}
-        </p>
+        <Field label="Buyer name / info">
+          <textarea
+            rows={2}
+            className={inputCls}
+            placeholder="e.g. Acme Holdings LLC, a Texas limited liability company"
+            value={buyerInfo}
+            onChange={(e) => {
+              setBuyerInfo(e.target.value);
+              setSave({ kind: "idle" });
+            }}
+          />
+        </Field>
+        <label className="flex items-center gap-2 text-xs text-zinc-500">
+          <input
+            type="checkbox"
+            checked={buyerSaveDefault}
+            onChange={(e) => setBuyerSaveDefault(e.target.checked)}
+          />
+          Also set this as my default for new deals
+        </label>
+        {overrides.find((o) => o.targetId === "buyer_name_info") && (
+          <p className="text-xs text-amber-600 dark:text-amber-400">
+            A per-deal override is active and will be used on the contract
+            instead:{" "}
+            {overrides.find((o) => o.targetId === "buyer_name_info")?.newValue}
+          </p>
+        )}
       </Section>
 
       {/* Seller */}

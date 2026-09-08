@@ -99,6 +99,27 @@ export async function getDeal(id: string): Promise<Deal | null> {
   return data ? rowToDeal(data as DealRow) : null;
 }
 
+/** The current user's standing default for the Buyer (§1). */
+export async function getBuyerDefault(): Promise<string> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("profiles")
+    .select("buyer_name_info")
+    .maybeSingle();
+  return data?.buyer_name_info ?? "";
+}
+
+export async function setBuyerDefault(value: string): Promise<void> {
+  const user = await getUser();
+  if (!user) throw new Error("Not authenticated");
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("profiles")
+    .update({ buyer_name_info: value })
+    .eq("id", user.id);
+  if (error) throw error;
+}
+
 export async function createDeal(input: DealCreate): Promise<string> {
   const user = await getUser();
   if (!user) throw new Error("Not authenticated");
@@ -109,7 +130,10 @@ export async function createDeal(input: DealCreate): Promise<string> {
     property_address: input.propertyAddress,
     county_id: input.countyId,
     legal_description: input.legalDescription as unknown as Json,
-    defaults: { ...DEFAULT_PREFERENCES } as unknown as Json,
+    defaults: {
+      ...DEFAULT_PREFERENCES,
+      buyerNameInfo: await getBuyerDefault(),
+    } as unknown as Json,
     terms: dealTermsSchema.parse({}) as unknown as Json,
   };
   const { data, error } = await supabase
@@ -135,6 +159,12 @@ export async function updateDeal(
   if (patch.overrideNote !== undefined) row.override_note = patch.overrideNote;
   if (patch.overrides !== undefined) {
     row.overrides = patch.overrides as unknown as Json;
+  }
+  if (patch.buyerNameInfo !== undefined) {
+    row.defaults = {
+      ...DEFAULT_PREFERENCES,
+      buyerNameInfo: patch.buyerNameInfo,
+    } as unknown as Json;
   }
 
   if (Object.keys(row).length === 0) return getDeal(id);

@@ -4,6 +4,11 @@ Notable changes to the project. Newest first.
 
 ## Unreleased
 
+- Editable Buyer default (§1): `profiles.buyer_name_info`
+  (`0003_profiles_buyer_info.sql`). The Buyer field in the deal wizard is now
+  editable (was read-only "not set"), with an opt-in "set as my default for new
+  deals" (`PUT /api/profile`). `createDeal` seeds a new deal's buyer info from
+  the profile. Full `user_preferences` is still slice 4.
 - Slice 3 — TREC 20-19 PDF fill (spec §10 step 3):
   - `public/templates/trec-20-19.pdf` (the current official form) committed.
   - `src/lib/trec/field-map.ts` — the 280 opaque AcroForm fields mapped to

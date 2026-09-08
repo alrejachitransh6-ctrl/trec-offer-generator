@@ -105,8 +105,14 @@ export const dealUpdateSchema = z.object({
   status: z.enum(["draft", "ready"]).optional(),
   overrideNote: z.string().max(4000).optional(),
   overrides: z.array(overrideChangeSchema).optional(),
+  /** Buyer standing default (§1), snapshotted onto this deal's `defaults`. */
+  buyerNameInfo: z.string().max(500).optional(),
 });
 export type DealUpdate = z.infer<typeof dealUpdateSchema>;
+
+export const buyerDefaultSchema = z.object({
+  buyerNameInfo: z.string().max(500),
+});
 
 export const interpretOverridesSchema = z.object({
   note: z.string().trim().min(1).max(4000),
