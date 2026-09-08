@@ -29,8 +29,17 @@ function parseAppEnv(value: string | undefined): AppEnv {
   ) {
     return value;
   }
-  // Fall back to Vercel's own signal, then to development for local work.
+  // Fall back to Vercel's own signals if NEXT_PUBLIC_APP_ENV was not set.
   if (process.env.VERCEL_ENV === "production") return "production";
+  // On the Hobby plan staging is a Preview deploy pinned to the `staging`
+  // branch (see docs/environments.md) — treat that branch as staging even if
+  // the branch-scoped NEXT_PUBLIC_APP_ENV is missing.
+  if (
+    process.env.VERCEL_ENV === "preview" &&
+    process.env.VERCEL_GIT_COMMIT_REF === "staging"
+  ) {
+    return "staging";
+  }
   return "development";
 }
 

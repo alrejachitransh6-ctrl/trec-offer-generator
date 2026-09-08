@@ -14,12 +14,18 @@ written yet.
 
 Two isolated deployments, each with its **own Supabase project and database**:
 
-|                       | Staging                   | Production             |
-| --------------------- | ------------------------- | ---------------------- |
-| Branch                | **`staging`**             | **`main`**             |
-| `NEXT_PUBLIC_APP_ENV` | `staging`                 | `production`           |
-| Supabase              | `trec-offer-staging`      | `trec-offer-prod`      |
-| Deploys               | auto on push to `staging` | auto on push to `main` |
+|                       | Staging                                 | Production             |
+| --------------------- | --------------------------------------- | ---------------------- |
+| Branch                | **`staging`**                           | **`main`**             |
+| Vercel env            | **Preview**, pinned to `staging` branch | **Production**         |
+| `NEXT_PUBLIC_APP_ENV` | `staging`                               | `production`           |
+| Supabase              | `trec-offer-staging`                    | `trec-offer-prod`      |
+| Deploys               | auto on push to `staging`               | auto on push to `main` |
+
+**Hosting is Vercel Hobby (free).** Staging is a **Preview** deployment pinned
+to the `staging` branch with a stable branch domain, with its env vars scoped to
+Preview + branch `staging`. Do **not** suggest Vercel Custom Environments — that
+is a Pro feature and is deliberately not used here.
 
 **Rules for every session (agent or human):**
 
@@ -113,10 +119,11 @@ shell, ensure `/opt/homebrew/bin` is in PATH.
 
 ## Not done yet
 
-- Supabase projects not created (need two: staging + prod); no schema, no RLS
-  policies, no migrations.
-- Vercel project not created; branch→environment auto-deploy and per-environment
-  env vars need the one-time account setup in `docs/environments.md`.
+- Supabase: staging project exists (`trec-offer-staging`); prod project not
+  created yet. No schema, no RLS policies, no migrations.
+- Vercel project not created; import repo, set Production Branch = `main`, add a
+  stable `staging` branch domain, and scope env vars (Production vs Preview+
+  branch `staging`) per `docs/environments.md`.
 - No real auth UI or session gating (stub in `updateSession`).
 - No TREC forms, field mappings, or offer data model.
 - No tests configured.
