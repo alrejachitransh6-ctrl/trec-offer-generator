@@ -25,12 +25,33 @@ streetName, direction }` for the CAD search. Deterministic post-processing
   appraisal district page, `claude-sonnet-5` returns a structured
   `LegalDescription` (forced tool call, zod-validated). It is told to extract
   only what's present and never infer.
+- **`src/lib/ai/interpret-overrides.ts`** — maps a deal's free-text "anything
+  different" note onto the fixed `OVERRIDE_TARGETS` catalog
+  (`src/lib/deals/override-catalog.ts`) via `claude-sonnet-5`. Returns
+  `{ changes, unmapped }`; the user accepts/rejects each change before it's
+  persisted. Ask-every-time fields are deliberately out of scope for this
+  (they're in the wizard) and get pushed to `unmapped`.
 - Model IDs live in `src/lib/ai/client.ts` (`MODELS`).
 - The extracted legal description is **always** surfaced for explicit user
   confirmation before use (spec §5 hard rule) — see `/lookup`.
 
 Deterministic, non-AI: choosing which CAD site to hit (`src/lib/counties/`),
 writing PDF fields, all DB reads/writes.
+
+## Deals (slice 2)
+
+- `deals` table: property + confirmed `legal_description` + `defaults` snapshot
+  - `terms` (ask-every-time fields) + `override_note` + `overrides` (accepted
+    structured changes). RLS: owner-only. `src/lib/deals/repo.ts` is the only
+    place that reads/writes it (zod-parses jsonb on the way out).
+- `src/lib/deals/defaults.ts` — `DEFAULT_PREFERENCES` constant, snapshotted onto
+  each deal at creation. Slice 4 replaces the constant with a table + UI.
+- `src/lib/deals/override-catalog.ts` — the closed set of normally-FIXED/DEFAULT
+  TREC points a per-deal note may change.
+- `src/lib/validations/deal.ts` — `dealTermsSchema` (every field defaulted via
+  `.prefault({})` so partial saves coerce), override + API payload schemas.
+- Wizard: `src/components/deals/deal-wizard.tsx` (client), one page, save writes
+  the whole `terms` object.
 
 ## County legal-description lookup
 
@@ -82,27 +103,27 @@ src/
   app/
     (auth)/login/      magic-link sign-in
     (app)/             authenticated routes — layout.tsx runs requireUser()
-      lookup/          legal-description lookup + confirmation (slice 1)
+      lookup/          legal-description lookup + "start deal" (slice 1)
+      deals/           deal list + [id] wizard (slice 2)
       dashboard/       placeholder
     auth/callback/     magic-link (PKCE code) → session + allowlist re-check
     auth/signout/      POST → sign out
-    api/health/        liveness probe
-    api/legal-lookup/  POST { address, countyId } → legal description
-  components/
-    auth/              login form
-    lookup/            legal-lookup form (client)
-    ui/                primitives (empty)
+    api/health, api/legal-lookup
+    api/deals, api/deals/[id], api/deals/[id]/interpret
+  components/          auth/, lookup/, deals/ (deal-wizard), ui/ (empty)
   config/site.ts       static app metadata
   lib/
     env.ts             validated env access + APP_ENV guard
     supabase/          client / server / proxy factories, auth.ts, DB types
-    ai/                Anthropic client + extractors
+    ai/                Anthropic client, parse-address, extract-legal-description,
+                       interpret-overrides
     counties/          list.ts (client), registry.ts + adapters/ (server)
+    deals/             repo.ts (server CRUD), defaults.ts, override-catalog.ts
     pdf/               generic pdf-lib form-filling helpers
-    validations/       zod schemas (legal-lookup.ts)
+    validations/       zod schemas (legal-lookup.ts, deal.ts)
     utils.ts
   types/
-supabase/migrations/   SQL migrations (0001_profiles.sql)
+supabase/migrations/   0001_profiles.sql, 0002_deals.sql
 public/templates/      blank TREC 20-19 PDF (added in a later slice)
 docs/spec.md           the feature spec (source of truth)
 ```

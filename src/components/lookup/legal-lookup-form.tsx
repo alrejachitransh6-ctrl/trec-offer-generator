@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { COUNTY_META } from "@/lib/counties/list";
 import type {
@@ -43,19 +44,19 @@ function toEditable(l: LegalDescription | null): EditableLegal {
 }
 
 export function LegalLookupForm() {
+  const router = useRouter();
   const [address, setAddress] = useState("");
   const [countyId, setCountyId] = useState<CountyId>("dallas");
   const [state, setState] = useState<RequestState>({ kind: "idle" });
   const [editable, setEditable] = useState<EditableLegal>(EMPTY_EDITABLE);
-  const [confirmed, setConfirmed] = useState<
-    (EditableLegal & { countyId: CountyId }) | null
-  >(null);
+  const [starting, setStarting] = useState(false);
+  const [startError, setStartError] = useState<string | null>(null);
   const [showContext, setShowContext] = useState(false);
 
   async function runLookup(event: React.FormEvent) {
     event.preventDefault();
     setState({ kind: "loading" });
-    setConfirmed(null);
+    setStartError(null);
     try {
       const res = await fetch("/api/legal-lookup", {
         method: "POST",
@@ -78,6 +79,43 @@ export function LegalLookupForm() {
         kind: "error",
         message: err instanceof Error ? err.message : "Network error",
       });
+    }
+  }
+
+  async function startDeal() {
+    setStarting(true);
+    setStartError(null);
+    try {
+      const res = await fetch("/api/deals", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          propertyAddress: address.trim(),
+          countyId,
+          legalDescription: {
+            legalDescription: editable.legalDescription.trim(),
+            lot: editable.lot.trim() || undefined,
+            block: editable.block.trim() || undefined,
+            addition: editable.addition.trim() || undefined,
+            city: editable.city.trim() || undefined,
+            county:
+              (state.kind === "done" && state.response.extracted?.county) ||
+              county.label,
+            confidence: "high" as const,
+          },
+        }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        setStartError(body.error ?? `Could not start the deal (${res.status})`);
+        return;
+      }
+      const { id } = await res.json();
+      router.push(`/deals/${id}`);
+    } catch (err) {
+      setStartError(err instanceof Error ? err.message : "Network error");
+    } finally {
+      setStarting(false);
     }
   }
 
@@ -248,39 +286,25 @@ export function LegalLookupForm() {
             </div>
           )}
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col gap-2">
+            <p className="text-xs text-zinc-500">
+              Check the legal description above, then start the deal. You can
+              still edit it later.
+            </p>
             <button
               type="button"
-              disabled={!editable.legalDescription.trim()}
-              onClick={() => setConfirmed({ ...editable, countyId })}
-              className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+              disabled={!editable.legalDescription.trim() || starting}
+              onClick={startDeal}
+              className="self-start rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
             >
-              Confirm legal description
+              {starting ? "Starting deal…" : "Confirm & start deal"}
             </button>
-            {confirmed && (
-              <span className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
-                Confirmed ✓
-              </span>
+            {startError && (
+              <p className="text-sm text-red-600 dark:text-red-400">
+                {startError}
+              </p>
             )}
           </div>
-        </section>
-      )}
-
-      {confirmed && (
-        <section className="rounded-lg border border-emerald-300 bg-emerald-50 p-4 text-sm dark:border-emerald-900 dark:bg-emerald-950/30">
-          <p className="font-medium text-emerald-800 dark:text-emerald-300">
-            Confirmed legal description
-          </p>
-          <p className="mt-1 font-mono text-emerald-900 dark:text-emerald-200">
-            {confirmed.legalDescription}
-          </p>
-          <p className="mt-2 text-emerald-700 dark:text-emerald-400">
-            Lot {confirmed.lot || "—"} · Block {confirmed.block || "—"} ·{" "}
-            {confirmed.addition || "—"} · {confirmed.city || "—"}
-          </p>
-          <p className="mt-2 text-xs text-emerald-600 dark:text-emerald-500">
-            (Next step — carrying this into a saved deal — is a later slice.)
-          </p>
         </section>
       )}
     </div>

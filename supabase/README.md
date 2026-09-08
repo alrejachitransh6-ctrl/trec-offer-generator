@@ -50,7 +50,7 @@ For staging/production we run the SQL directly. Simplest path:
 2. Paste the contents of each new file in `migrations/` (in order) and run it.
    The files are idempotent (`if not exists`, `drop … if exists`).
 
-Order so far: `0001_profiles.sql`. Apply to **staging**
+Order so far: `0001_profiles.sql`, `0002_deals.sql`. Apply to **staging**
 (`aggwvdaakdduzsgztdsz`) first, verify, then production.
 
 ## Auth setup (magic link)

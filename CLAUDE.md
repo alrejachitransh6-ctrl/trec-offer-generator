@@ -65,27 +65,30 @@ src/
   app/
     (auth)/login/           magic-link sign-in
     (app)/layout.tsx        requireUser() gate for everything below
-    (app)/lookup/           legal-description lookup + confirm (slice 1)
+    (app)/lookup/           legal-description lookup + "start deal" (slice 1)
+    (app)/deals/            deal list + /deals/[id] wizard (slice 2)
     (app)/dashboard/        placeholder
     auth/callback/route.ts  magic-link (PKCE code) → session + allowlist re-check
     auth/signout/route.ts   POST → sign out
-    api/health/route.ts     liveness probe
-    api/legal-lookup/route.ts   POST { address, countyId }
-  components/  auth/ (login form), lookup/ (lookup form), ui/ (empty)
+    api/health, api/legal-lookup
+    api/deals (POST), api/deals/[id] (GET/PUT), api/deals/[id]/interpret (POST)
+  components/  auth/, lookup/, deals/ (deal-wizard), ui/ (empty)
   components/env-badge.tsx  non-prod environment badge
   config/site.ts            static app metadata
   lib/
     env.ts                  validated env-var access + APP_ENV + prod/staging guard
     supabase/               client.ts / server.ts (async) / middleware.ts /
                             auth.ts (getUser, requireUser, isEmailAllowed)
-    ai/                     client.ts (MODELS), extract-legal-description.ts
+    ai/                     client.ts (MODELS), parse-address, extract-legal-description,
+                            interpret-overrides
     counties/               list.ts (client-safe meta), registry.ts + adapters/
                             (server; dallas.ts is live, others manual-entry)
+    deals/                  repo.ts (server CRUD), defaults.ts, override-catalog.ts
     pdf/fill-form.ts         generic, form-agnostic pdf-lib helpers
-    validations/legal-lookup.ts   zod schemas + shared types
+    validations/            legal-lookup.ts, deal.ts (zod)
     utils.ts
   proxy.ts                   Next 16 proxy → updateSession (coarse route gate)
-supabase/migrations/         0001_profiles.sql (apply via dashboard SQL editor)
+supabase/migrations/         0001_profiles.sql, 0002_deals.sql (apply via dashboard SQL editor)
 public/templates/            blank TREC 20-19 PDF (later slice)
 docs/spec.md                 feature spec — source of truth
 docs/architecture.md         fuller architecture notes
@@ -107,6 +110,12 @@ docs/architecture.md         fuller architecture notes
   `src/lib/counties/list.ts` for UI.
 - The looked-up legal description is **always** user-confirmed before use.
 - CAD adapters must never throw — return `{ error, extracted: null }`.
+- All deal DB access goes through `src/lib/deals/repo.ts`; RLS + `user_id`
+  filter both enforce ownership.
+- The NL override box maps **only** to `override-catalog.ts` targets. Ask-every-
+  time fields belong in the wizard; the interpreter pushes them to `unmapped`.
+- `dealTermsSchema` fields all use `.prefault({})` — partial input coerces to a
+  full object so drafts always save.
 
 ## Setup
 
@@ -130,13 +139,12 @@ shell, ensure `/opt/homebrew/bin` is in PATH.
 
 ## Not done yet
 
-- Prereqs for slice 1 to run: `ANTHROPIC_API_KEY` (local + Vercel Preview/
-  staging), Supabase magic-link setup + the `chrisflips01@gmail.com` account
-  (`supabase/README.md`), `0001_profiles.sql` applied to staging.
-- Production Supabase project not created. Vercel: prod-scoped env vars +
-  `ANTHROPIC_API_KEY` still needed for a real prod deploy.
+- Staging prereqs: `0002_deals.sql` must be applied (SQL editor). `0001` +
+  `ANTHROPIC_API_KEY` + magic-link setup already done.
+- Production Supabase project not created; prod-scoped Vercel env vars pending.
 - Tarrant / Denton / Collin CAD adapters (manual entry only for now).
-- Slices 2–4: ask-every-time fields, TREC 20-19 field map + PDF fill, saved
-  defaults / account settings, `deals` persistence. Spec §7 field list;
-  field inventory in `docs/trec-field-inventory.txt`.
+- Slice 3: TREC 20-19 field map + PDF fill (`docs/trec-field-inventory.txt`,
+  spec §7). Slice 4: editable `user_preferences` (replaces `DEFAULT_PREFERENCES`).
+- Deal has no "generate PDF" / "mark ready" flow yet; `terms` completeness is
+  not enforced (drafts save partial).
 - No tests configured.

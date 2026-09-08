@@ -1,14 +1,11 @@
 /**
- * Generated Supabase database types.
+ * Supabase database types.
  *
- * This file is a placeholder. Once the schema exists, regenerate it with:
+ * Hand-maintained for now (migrations are applied via the dashboard SQL editor,
+ * not the CLI). When the CLI is set up, regenerate with:
  *
  *   npx supabase gen types typescript --project-id <ref> --schema public \
  *     > src/lib/supabase/database.types.ts
- *
- * or, against a local stack:
- *
- *   npx supabase gen types typescript --local > src/lib/supabase/database.types.ts
  */
 export type Json =
   | string
@@ -20,7 +17,71 @@ export type Json =
 
 export interface Database {
   public: {
-    Tables: Record<string, never>;
+    Tables: {
+      profiles: {
+        Row: {
+          id: string;
+          email: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id: string;
+          email?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          email?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      deals: {
+        Row: {
+          id: string;
+          user_id: string;
+          status: string;
+          property_address: string;
+          county_id: string;
+          legal_description: Json;
+          defaults: Json;
+          terms: Json;
+          override_note: string;
+          overrides: Json;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          status?: string;
+          property_address: string;
+          county_id: string;
+          legal_description: Json;
+          defaults?: Json;
+          terms?: Json;
+          override_note?: string;
+          overrides?: Json;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          status?: string;
+          property_address?: string;
+          county_id?: string;
+          legal_description?: Json;
+          defaults?: Json;
+          terms?: Json;
+          override_note?: string;
+          overrides?: Json;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+    };
     Views: Record<string, never>;
     Functions: Record<string, never>;
     Enums: Record<string, never>;

@@ -70,4 +70,4 @@ export async function updateSession(request: NextRequest) {
   return supabaseResponse;
 }
 
-const PROTECTED_PREFIXES = ["/lookup", "/dashboard", "/settings"];
+const PROTECTED_PREFIXES = ["/lookup", "/deals", "/dashboard", "/settings"];

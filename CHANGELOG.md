@@ -4,6 +4,18 @@ Notable changes to the project. Newest first.
 
 ## Unreleased
 
+- Slice 2 — deals + ask-every-time wizard + NL overrides (spec §6/§7):
+  - `deals` table + RLS (`supabase/migrations/0002_deals.sql`). Each deal
+    snapshots the standing defaults (`DEFAULT_PREFERENCES`, code constant for
+    now — slice 4 makes them editable).
+  - `/lookup` "Confirm & start deal" creates a deal and opens `/deals/[id]`;
+    `/deals` lists them.
+  - `/deals/[id]` — single-page sectioned form: Seller, Sales Price, Earnest/
+    Escrow/Option, Title, Closing Date, HOA, Special Provisions, Signatories.
+  - "Anything different about this deal?" box → `claude-sonnet-5` maps the note
+    to a fixed catalog of overridable TREC points (`override-catalog.ts`); the
+    user accepts/rejects each change before it's saved to the deal.
+  - `POST /api/deals`, `PUT /api/deals/[id]`, `POST /api/deals/[id]/interpret`.
 - Slice 1 — legal-description lookup (spec §10 step 1):
   - Magic-link auth (Supabase OTP) using the **default** email template —
     `/auth/callback` exchanges the PKCE code, re-checks the email allowlist;
