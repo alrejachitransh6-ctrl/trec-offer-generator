@@ -137,6 +137,24 @@ function detailPageText(html: string): string {
     .slice(0, 8000);
 }
 
+/**
+ * A real DCAD detail page has a "Legal Desc" section with actual values.
+ * Invalid / "No Data" accounts return a shell page — don't feed that to the
+ * model (it hallucinates on empty pages).
+ */
+function looksLikePropertyPage(text: string): boolean {
+  if (/could not be (shown|displayed)/i.test(text)) return false;
+  const m = text.match(
+    /Legal Desc\s*\(Current[^)]*\)([\s\S]*?)(?:Deed Transfer Date|Value|Main Improvement)/i,
+  );
+  if (!m) return false;
+  const section = m[1]!
+    .replace(/\bNo Data\b/gi, "")
+    .replace(/\d+\s*:/g, "")
+    .trim();
+  return /[A-Za-z]{3,}/.test(section);
+}
+
 export const dallasAdapter: CadAdapter = {
   id: "dallas",
 
@@ -216,6 +234,17 @@ export const dallasAdapter: CadAdapter = {
         headers: cookie ? { cookie } : {},
       });
       const pageText = detailPageText(await detailRes.text());
+
+      if (!looksLikePropertyPage(pageText)) {
+        return {
+          sourceUrl: chosen.detailUrl,
+          pageContext: pageText,
+          error:
+            "DallasCAD returned a page without a legal description for that " +
+            "match. Open the source page to check, or enter it manually.",
+          extracted: null,
+        };
+      }
 
       const ambiguityNote =
         candidates.length > 1

@@ -67,7 +67,7 @@ src/
     (app)/layout.tsx        requireUser() gate for everything below
     (app)/lookup/           legal-description lookup + confirm (slice 1)
     (app)/dashboard/        placeholder
-    auth/confirm/route.ts   magic-link verify + allowlist re-check
+    auth/callback/route.ts  magic-link (PKCE code) → session + allowlist re-check
     auth/signout/route.ts   POST → sign out
     api/health/route.ts     liveness probe
     api/legal-lookup/route.ts   POST { address, countyId }

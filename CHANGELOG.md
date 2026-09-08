@@ -5,8 +5,9 @@ Notable changes to the project. Newest first.
 ## Unreleased
 
 - Slice 1 — legal-description lookup (spec §10 step 1):
-  - Magic-link auth (Supabase OTP), email allowlist backstop, `(app)` route
-    group gated by `requireUser()`, sign-out.
+  - Magic-link auth (Supabase OTP) using the **default** email template —
+    `/auth/callback` exchanges the PKCE code, re-checks the email allowlist;
+    `(app)` route group gated by `requireUser()`; sign-out. No custom SMTP.
   - County registry (Dallas/Tarrant/Denton/Collin); Dallas CAD adapter does a
     real DallasCAD address search + detail-page fetch.
   - Runtime AI: `claude-sonnet-5` extracts the legal description from the CAD

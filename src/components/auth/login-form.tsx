@@ -27,11 +27,11 @@ export function LoginForm({ next }: { next?: string }) {
     const emailRedirectTo = `${clientEnv.NEXT_PUBLIC_SITE_URL.replace(
       /\/$/,
       "",
-    )}/auth/confirm?next=${encodeURIComponent(redirectPath)}`;
+    )}/auth/callback?next=${encodeURIComponent(redirectPath)}`;
 
     // shouldCreateUser: false — accounts are provisioned in the Supabase
     // dashboard (see supabase/README.md). Only known users get a link; the
-    // /auth/confirm route re-checks the allowlist regardless.
+    // /auth/callback route re-checks the allowlist regardless.
     const { error } = await supabase.auth.signInWithOtp({
       email: trimmed,
       options: { emailRedirectTo, shouldCreateUser: false },

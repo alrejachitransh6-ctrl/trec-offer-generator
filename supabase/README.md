@@ -55,20 +55,30 @@ Order so far: `0001_profiles.sql`. Apply to **staging**
 
 ## Auth setup (magic link)
 
-Sign-in is passwordless magic link, restricted to a fixed set of users.
+Sign-in is passwordless magic link, restricted to a fixed set of users. This
+works with Supabase's **default** email templates — no custom SMTP needed.
 
-1. **Authentication → Providers → Email**: enable, keep "Confirm email" on.
-2. **Authentication → Sign-ups**: disable open sign-ups (`shouldCreateUser` is
-   already `false` client-side, but disable it here too).
-3. **Authentication → URL Configuration**: add the site + redirect URLs
-   (`http://localhost:3000`, the staging URL, later production) and allow
-   `**/auth/confirm`.
-4. **Authentication → Email Templates → Magic Link**: set the link to
-   `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type={{ .Type }}`.
-5. **Authentication → Users → Add user**: create each allowed account
-   (currently `chrisflips01@gmail.com`). The `on_auth_user_created` trigger
-   adds their `profiles` row.
-6. Set `AUTH_ALLOWED_EMAILS` (same addresses) locally and in Vercel.
+1. **Authentication → Providers → Email**: enable. Turn **off** "Confirm email"
+   (we only ever send magic links to pre-created accounts).
+2. **Authentication → Sign-ups**: disable open sign-ups. (`shouldCreateUser` is
+   already `false` client-side.)
+3. **Authentication → URL Configuration**:
+   - **Site URL**: the staging URL (and `http://localhost:3000` works for local
+     because it's also added below).
+   - **Redirect URLs**: add `http://localhost:3000/**`, `<staging-url>/**`, and
+     later `<prod-url>/**`.
+     The default email link (`{{ .ConfirmationURL }}`) verifies at Supabase and
+     redirects to `<emailRedirectTo>?code=…`, which the app's `/auth/callback`
+     route exchanges for a session. No email-template edits required.
+4. **Authentication → Users → Add user**: create each allowed account
+   (currently `chrisflips01@gmail.com`), "Auto Confirm User" on. The
+   `on_auth_user_created` trigger adds their `profiles` row.
+5. Set `AUTH_ALLOWED_EMAILS` (same addresses) locally and in Vercel.
+
+> Note: the default link uses the PKCE code flow, so the magic link must be
+> opened in the **same browser** that requested it. Fine for local/staging;
+> revisit with custom SMTP + a `token_hash` template if cross-device links are
+> needed.
 
 ## Environment
 

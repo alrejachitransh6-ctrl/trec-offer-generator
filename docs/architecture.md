@@ -55,7 +55,9 @@ for `/lookup`, `/dashboard`, `/settings` to `/login`. The canonical check —
 session **and** email allowlist (`AUTH_ALLOWED_EMAILS`) — is `requireUser()` in
 `src/app/(app)/layout.tsx`. Sign-in is magic link only (`signInWithOtp`,
 `shouldCreateUser: false`); accounts are created in the Supabase dashboard.
-`/auth/confirm` re-checks the allowlist and signs out anyone not on it.
+The email link uses Supabase's default template → `/auth/callback` exchanges
+the PKCE `code` for a session, re-checks the allowlist, and signs out anyone
+not on it.
 
 ## PDF form filling
 
@@ -77,8 +79,7 @@ src/
     (app)/             authenticated routes — layout.tsx runs requireUser()
       lookup/          legal-description lookup + confirmation (slice 1)
       dashboard/       placeholder
-    auth/callback/     OAuth / PKCE code exchange
-    auth/confirm/      magic-link verification + allowlist re-check
+    auth/callback/     magic-link (PKCE code) → session + allowlist re-check
     auth/signout/      POST → sign out
     api/health/        liveness probe
     api/legal-lookup/  POST { address, countyId } → legal description
