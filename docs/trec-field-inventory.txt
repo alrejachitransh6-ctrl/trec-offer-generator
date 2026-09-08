@@ -1,0 +1,282 @@
+TOTAL FIELDS: 280, PAGES: 12
+
+p1     TextField  | 1 PARTIES The parties to this contract are
+p1     TextField  | Seller and
+p1     TextField  | A LAND Lot
+p1     TextField  | Block
+p1     TextField  | undefined
+p1     TextField  | Addition City of
+p1     TextField  | County of
+p1     TextField  | Texas known as
+p1     TextField  | be removed prior to delivery of possession
+p1     TextField  | undefined_2
+p1     TextField  | undefined_3
+p1     CheckBox   | B Sum of all financing described in the attached
+p1     TextField  | undefined_4
+p1     TextField  | undefined_5
+p1     TextField  | Initialed for identification by Buyer
+p1     TextField  | undefined_8
+p1     TextField  | and Seller
+p1     TextField  | undefined_9
+p1     CheckBox   | Loan Assumption Addendum
+p1     CheckBox   | Check Box2
+p1     CheckBox   | i will not be amended or deleted from the title policy or
+p1     CheckBox   | ii will be amended to read shortages in area at the expense of
+p1     CheckBox   | A TITLE POLICY Seller shall furnish to Buyer at
+p1     CheckBox   | Sellers
+p1     CheckBox   | Seller
+p1     TextField  | to escrow agent within 1
+p2     TextField  | Page 2 of 10
+p2     TextField  | the Title Company and Buyers lenders Check one box only
+p2     CheckBox   | 2Within
+p2     CheckBox   | 3Within
+p2     CheckBox   | Sellers_2
+p2     CheckBox   | Buyers expense no later
+p2     CheckBox   | is
+p2     CheckBox   | is not
+p2     TextField  | 2 MEMBERSHIP IN PROPERTY OWNERS ASSOCIATIONS The Property
+p2     TextField  | and Seller_2
+p2     TextField  | undefined_10
+p2     TextField  | undefined_11
+p2     TextField  | undefined_6
+p2     TextField  | undefined_7
+p2     TextField  | earnest money of
+p2     TextField  | insurance Title Policy issued by
+p2     TextField  | to escrow agent within
+p2     TextField  | other party in writing before entering into a contract of sale  Disclose if applicable
+p2     TextField  | as earnest money to
+p2     TextField  | as earnest money to 2
+p3     TextField  | Page 3 of 10
+p3     TextField  | Property Code requires Seller to notify Buyer as follows
+p3     TextField  | and Seller_3
+p3     TextField  | undefined_12
+p3     TextField  | The private transfer fee
+p3     TextField  | receipt or the date specified in this paragraph whichever is earlier
+p3     TextField  | Commitment other than items 6A1 through 9 above or which prohibit the following use
+p3     TextField  | the Commitment Exception Documents and the survey Buyers failure to object within the
+p3     CheckBox   | Buyer
+p3     TextField  | than 3 days prior to Closing Date
+p3     CheckBox   | 1Within
+p3     CheckBox   | 2 Within
+p3     CheckBox   | Within one
+p3     CheckBox   | Within two
+p3     CheckBox   | Within three
+p3     CheckBox   | Within four
+p3     TextField  | 3 days prior
+p4     TextField  | Contract Concerning
+p4     TextField  | Within
+p4     CheckBox   | 1 Buyer accepts the Property As Is
+p4     CheckBox   | 2 Buyer accepts the Property As Is provided Seller at Sellers expense shall complete the
+p4     TextField  | Initialed for identification by Buyer_2
+p4     TextField  | undefined_14
+p4     TextField  | and Seller_4
+p4     TextField  | undefined_15
+p4     CheckBox   | upon
+p5     TextField  | Contract Concerning_2
+p5     TextField  | Initialed for identification by Buyer_3
+p5     TextField  | Buyers Expenses as allowed by the lender
+p5     TextField  | and Seller_5
+p5     TextField  | undefined_16
+p5     TextField  | following specific repairs and treatments
+p5     TextField  | undefined_13
+p5     CheckBox   | As Is
+p5     CheckBox   | As Is except
+p5     CheckBox   | Dollar Amt
+p5     TextField  | service contract in an amount not exceeding
+p5     TextField  | service contract in an amount not exceeding0
+p5     CheckBox   | Seller as List Brok Sub agent2
+p5     CheckBox   | Dollar Amt2
+p5     TextField  | service contract in an amount not exceeding1
+p5     TextField  | service contract in an amount not exceeding3
+p6     TextField  | Contract Concerning_3
+p6     TextField  | Initialed for identification by Buyer_4
+p6     TextField  | undefined_17
+p6     TextField  | and Seller_6
+p6     TextField  | undefined_18
+p6     TextField  | Text3
+p6     TextField  | Text3 2
+p6     TextField  | Text3 3
+p6     CheckBox   | will
+p6     CheckBox   | will not be credited to the Sales Price at closing Time is of the
+p6     TextField  | Brokers and Sales
+p6     TextField  | Brokers and Sales 2
+p6     TextField  | A The closing of the sale will be on or before
+p6     TextField  | 20
+p6     TextField  | Brokers and Sales4
+p6     TextField  | acknowledged by Seller and Buyers agreement to pay Seller 1
+p7     TextField  | Page 7 of 10
+p7     TextField  | AC numb 1
+p7     TextField  | AC numb 2
+p7     TextField  | AC numb 3
+p7     TextField  | AC numb 4
+p7     CheckBox   | Percentage
+p7     CheckBox   | Seller only as Sellers agent
+p7     CheckBox   | Seller as List Brok Sub agent
+p7     CheckBox   | Dollar Amt4
+p7     CheckBox   | Dollar Amt5
+p7     CheckBox   | Seller as List Brok Sub agent27
+p7     TextField  | acknowledged by Seller and Buyers agreement to pay Seller 130
+p7     TextField  | acknowledged by Seller and Buyers agreement to pay Seller 31
+p7     TextField  | acknowledged by Seller and Buyers agreement to pay Seller 32
+p7     TextField  | acknowledged by Seller and Buyers agreement to pay Seller 40
+p8     TextField  | Contract Concerning_4
+p8     TextField  | when mailed to handdelivered at or transmitted by fax or electronic transmission as follows
+p8     TextField  | at
+p8     TextField  | Phone 52
+p8     TextField  | undefined_20-0
+p8     TextField  | undefined_20
+p8     TextField  | undefined_19
+p8     TextField  | at_2
+p8     TextField  | undefined numb 21
+p8     TextField  | undefined numb 22-0
+p8     TextField  | undefined numb 22
+p8     TextField  | undefined6
+p8     TextField  | at7
+p8     TextField  | at_28
+p8     TextField  | undefined numb 2110
+p8     TextField  | undefined_20-011
+p8     TextField  | undefined numb 22-012
+p8     TextField  | undefined_2013
+p8     TextField  | undefined numb 2214
+p8     TextField  | when mailed to handdelivered at or transmitted by fax or electronic transmission as follow15
+p8     TextField  | Phone 5217
+p8     TextField  | and Seller_18
+p8     TextField  | undefined_2219
+p8     TextField  | Initialed for identification by Buyer_521
+p8     TextField  | undefined_2322
+p9     TextField  | Address of Property
+p9     CheckBox   | Third Party Financing Addendum
+p9     CheckBox   | Seller Financing Addendum
+p9     CheckBox   | Addendum for Property Subject to
+p9     CheckBox   | Buyers Temporary Residential Lease
+p9     CheckBox   | Loan Assumption Addendum_2
+p9     CheckBox   | Addendum for Sale of Other Property by
+p9     CheckBox   | Addendum for Reservation of Oil Gas
+p9     CheckBox   | Addendum for BackUp Contract
+p9     CheckBox   | Check Box8
+p9     CheckBox   | Check Box9
+p9     CheckBox   | Check box 10
+p9     CheckBox   | Check box 11
+p9     CheckBox   | Environmental Assessment Threatened or
+p9     CheckBox   | Sellers Temporary Residential Lease
+p9     CheckBox   | Short Sale Addendum
+p9     CheckBox   | Addendum for Property Located Seaward
+p9     CheckBox   | Sellers Disclos
+p9     CheckBox   | Addend. for Sellers Disclos
+p9     CheckBox   | Addendum for Property in a Propane Gas
+p9     CheckBox   | PID
+p9     CheckBox   | Addendum for Section 1031
+p9     CheckBox   | Other
+p9     TextField  | Attorney is
+p9     TextField  | undefined_24
+p9     TextField  | Text2
+p9     TextField  | Text1
+p9     TextField  | Text7
+p9     TextField  | Text6
+p9     TextField  | Email
+p9     TextField  | Attorney is_2
+p9     TextField  | undefined_25
+p9     TextField  | Text22
+p9     TextField  | Phone11
+p9     TextField  | Text23
+p9     TextField  | Phone 2
+p9     TextField  | Email_2
+p9     CheckBox   | Buyer only
+p9     CheckBox   | Seller and Buyer as an intermediary
+p9     TextField  | Initialed for identification by Buyer_5
+p9     TextField  | and Seller_7
+p9     TextField  | undefined_22
+p9     TextField  | undefined_23
+p9     TextField  | Brokers and Sales20
+p9     TextField  | Brokers and Sales21
+p9     TextField  | Brokers and Sales22
+p9     TextField  | Brokers and Sales41
+p10    TextField  | Addr of Prop
+p10    TextField  | EXECUTED the
+p10    TextField  | day of
+p10    TextField  | 20_2
+p10    Signature  | Signature8
+p10    Signature  | Signature9
+p10    Signature  | Signature10
+p10    Signature  | Signature11
+p11    TextField  | Other Broker Firm
+p11    TextField  | License No
+p11    TextField  | Associates Name numb 1
+p11    TextField  | License No_2
+p11    TextField  | Associates Name
+p11    TextField  | Associates Email Address
+p11    TextField  | Phone
+p11    TextField  | Licensed Supervisor of Associate
+p11    TextField  | License No_3
+p11    TextField  | Other Brokers Address
+p11    TextField  | Phone_2
+p11    TextField  | City
+p11    TextField  | State
+p11    TextField  | Zip
+p11    TextField  | Listing Broker Firm
+p11    TextField  | License No_4
+p11    TextField  | List Assoc Name
+p11    TextField  | License No_5
+p11    TextField  | Listing Associates Name
+p11    TextField  | Listing Associates Email Address
+p11    TextField  | Phone_3
+p11    TextField  | Licensed Supervisor of Listing Associate
+p11    TextField  | License No_6
+p11    TextField  | Listing Brokers Office Address
+p11    TextField  | Phone_4
+p11    TextField  | City_2
+p11    TextField  | State_2
+p11    TextField  | Zip_2
+p11    TextField  | Selling Associates Name
+p11    TextField  | License No_7
+p11    TextField  | Selling Associates Name-1
+p11    TextField  | Selling Associates Email Address
+p11    TextField  | Phone_5
+p11    TextField  | Licensed Supervisor of Selling Associate
+p11    TextField  | License No_8
+p11    TextField  | Selling Associates Office Address
+p11    TextField  | City_3
+p11    TextField  | State_3
+p11    TextField  | Zip_3
+p11    TextField  | when mailed to
+p11    TextField  | when the Listing Brokers fee is received Escrow agent is authorized and directed to pay Other Broker from
+p11    TextField  | Address of Property_2
+p12    TextField  | is acknowledged
+p12    TextField  | Option Fee in the form of
+p12    TextField  | Seller or Listing Broker
+p12    TextField  | Date
+p12    TextField  | is acknowledged_2
+p12    TextField  | Earnest Money in the form of
+p12    TextField  | Escrow Agent
+p12    TextField  | Received by
+p12    TextField  | Address
+p12    TextField  | City_4
+p12    TextField  | State_4
+p12    TextField  | Zip_4
+p12    TextField  | Email Address
+p12    TextField  | DateTime
+p12    TextField  | Phone_6
+p12    TextField  | Fax
+p12    TextField  | Escrow Agent_2
+p12    TextField  | Received by_2
+p12    TextField  | Address_2
+p12    TextField  | City_5
+p12    TextField  | State_5
+p12    TextField  | Zip_5
+p12    TextField  | Email Address_2
+p12    TextField  | Date_2
+p12    TextField  | Phone_7
+p12    TextField  | Fax_2
+p12    TextField  | is acknowledged_3
+p12    TextField  | additional Earnest Money in the form of
+p12    TextField  | Escrow Agent_3
+p12    TextField  | Received by_3
+p12    TextField  | Address_3
+p12    TextField  | City_6
+p12    TextField  | State_6
+p12    TextField  | Zip_6
+p12    TextField  | Email Address_3
+p12    TextField  | DateTime_2
+p12    TextField  | Phone_8
+p12    TextField  | Fax_3
+p12    TextField  | Address of Property_26
