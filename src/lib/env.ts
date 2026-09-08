@@ -61,9 +61,10 @@ export const clientEnv = {
   /** Which deployment this is. Drives environment badges and safety checks. */
   APP_ENV: appEnv,
   NEXT_PUBLIC_SUPABASE_URL,
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: required(
-    "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  // Supabase "publishable" key (sb_publishable_...). Safe for the browser.
+  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: required(
+    "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
   ),
   NEXT_PUBLIC_SITE_URL:
     process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
@@ -77,10 +78,8 @@ export const isStaging = appEnv === "staging";
  * values are `undefined` in the browser bundle.
  */
 export const serverEnv = {
-  get SUPABASE_SERVICE_ROLE_KEY(): string {
-    return required(
-      "SUPABASE_SERVICE_ROLE_KEY",
-      process.env.SUPABASE_SERVICE_ROLE_KEY,
-    );
+  /** Supabase "secret" key (sb_secret_...). Full access — never expose. */
+  get SUPABASE_SECRET_KEY(): string {
+    return required("SUPABASE_SECRET_KEY", process.env.SUPABASE_SECRET_KEY);
   },
 };

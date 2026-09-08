@@ -39,13 +39,13 @@ Local development uses `.env.local` (git-ignored, created from `.env.example`).
 Staging and production variables are **set in the Vercel dashboard only**, scoped
 per environment so the two key sets are never mixed.
 
-| Variable                        | Local (`.env.local`)    | Vercel `staging` env | Vercel Production env |
-| ------------------------------- | ----------------------- | -------------------- | --------------------- |
-| `NEXT_PUBLIC_APP_ENV`           | `development`           | `staging`            | `production`          |
-| `NEXT_PUBLIC_SUPABASE_URL`      | staging project URL     | staging project URL  | **prod** project URL  |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | staging anon key        | staging anon key     | **prod** anon key     |
-| `SUPABASE_SERVICE_ROLE_KEY`     | staging service key     | staging service key  | **prod** service key  |
-| `NEXT_PUBLIC_SITE_URL`          | `http://localhost:3000` | staging URL          | production URL        |
+| Variable                               | Local (`.env.local`)    | Vercel `staging` env    | Vercel Production env    |
+| -------------------------------------- | ----------------------- | ----------------------- | ------------------------ |
+| `NEXT_PUBLIC_APP_ENV`                  | `development`           | `staging`               | `production`             |
+| `NEXT_PUBLIC_SUPABASE_URL`             | staging project URL     | staging project URL     | **prod** project URL     |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | staging publishable key | staging publishable key | **prod** publishable key |
+| `SUPABASE_SECRET_KEY`                  | staging secret key      | staging secret key      | **prod** secret key      |
+| `NEXT_PUBLIC_SITE_URL`                 | `http://localhost:3000` | staging URL             | production URL           |
 
 `src/lib/env.ts` throws at startup if `NEXT_PUBLIC_APP_ENV=production` while the
 Supabase URL looks non-production — a backstop against swapped keys.
@@ -59,8 +59,9 @@ the repo.
 
 1. Create Supabase project **`trec-offer-staging`**.
 2. Create Supabase project **`trec-offer-prod`**.
-3. From each project's **Settings → API**, copy the Project URL, `anon` key, and
-   `service_role` key. Keep the two sets clearly labelled.
+3. From each project's **Settings → API Keys**, copy the Project URL, the
+   publishable key (`sb_publishable_...`), and the secret key (`sb_secret_...`).
+   Keep the two sets clearly labelled.
 4. Put the **staging** set into your local `.env.local`.
 
 ### 2. Vercel — project + environments 🧑
