@@ -52,8 +52,10 @@ Full runbook, including the one-time Vercel/Supabase account setup: see
   / `params` / `searchParams` are **async**. Read `node_modules/next/dist/docs/`
   before writing framework code (see `AGENTS.md`).
 - **Tailwind CSS v4** — configured via `@tailwindcss/postcss`, no `tailwind.config`.
-- **Supabase** — Auth + Postgres, accessed through `@supabase/ssr`.
-- **pdf-lib** — fills AcroForm fields in PDF templates.
+- **Supabase** — Auth (magic link) + Postgres, via `@supabase/ssr`.
+- **pdf-lib** — fills AcroForm fields in PDF templates (later slice).
+- **`@anthropic-ai/sdk`** — runtime AI (legal-description extraction).
+- **`zod`** — request + AI-output validation. **`cheerio`** — CAD HTML parsing.
 - **Prettier** with `prettier-plugin-tailwindcss`.
 
 ## Layout
@@ -61,30 +63,31 @@ Full runbook, including the one-time Vercel/Supabase account setup: see
 ```
 src/
   app/
-    (auth)/login/          unauthenticated routes (placeholder)
-    (app)/dashboard/        authenticated routes (placeholder)
-    auth/callback/route.ts  OAuth / PKCE code exchange
-    auth/confirm/route.ts   email OTP / magic-link verification
+    (auth)/login/           magic-link sign-in
+    (app)/layout.tsx        requireUser() gate for everything below
+    (app)/lookup/           legal-description lookup + confirm (slice 1)
+    (app)/dashboard/        placeholder
+    auth/confirm/route.ts   magic-link verify + allowlist re-check
+    auth/signout/route.ts   POST → sign out
     api/health/route.ts     liveness probe
-    layout.tsx, page.tsx, globals.css
-  components/  ui/ (primitives), auth/ (auth widgets)
+    api/legal-lookup/route.ts   POST { address, countyId }
+  components/  auth/ (login form), lookup/ (lookup form), ui/ (empty)
   components/env-badge.tsx  non-prod environment badge
   config/site.ts            static app metadata
-  hooks/
   lib/
     env.ts                  validated env-var access + APP_ENV + prod/staging guard
-    supabase/
-      client.ts             browser client (Client Components)
-      server.ts             server client (async; Server Components / Route Handlers / Actions)
-      middleware.ts          updateSession() — token refresh + route protection
-      database.types.ts     generated DB types (placeholder until schema exists)
+    supabase/               client.ts / server.ts (async) / middleware.ts /
+                            auth.ts (getUser, requireUser, isEmailAllowed)
+    ai/                     client.ts (MODELS), extract-legal-description.ts
+    counties/               list.ts (client-safe meta), registry.ts + adapters/
+                            (server; dallas.ts is live, others manual-entry)
     pdf/fill-form.ts         generic, form-agnostic pdf-lib helpers
+    validations/legal-lookup.ts   zod schemas + shared types
     utils.ts
-    validations/             shared validation schemas (empty)
-  types/
-  proxy.ts                   Next 16 proxy → calls updateSession
-supabase/migrations/         SQL migrations (run `supabase init` to add config.toml)
-public/templates/            blank TREC PDF form templates go here
+  proxy.ts                   Next 16 proxy → updateSession (coarse route gate)
+supabase/migrations/         0001_profiles.sql (apply via dashboard SQL editor)
+public/templates/            blank TREC 20-19 PDF (later slice)
+docs/spec.md                 feature spec — source of truth
 docs/architecture.md         fuller architecture notes
 ```
 
@@ -96,6 +99,14 @@ docs/architecture.md         fuller architecture notes
 - Keep `src/lib/pdf/` form-agnostic. Document-specific field mappings are feature
   code and live elsewhere (e.g. `src/lib/trec/` when created).
 - PDF templates are static assets in `public/templates/`.
+- **AI at runtime is deliberate and narrow** (spec §5): reading CAD pages and
+  (later) NL overrides. Everything else — county routing, PDF fill, DB — is
+  plain code. Model IDs only in `src/lib/ai/client.ts`.
+- **Never import `src/lib/counties/registry.ts` or `adapters/` into client
+  components** — they pull in the Anthropic SDK + `cheerio`. Use
+  `src/lib/counties/list.ts` for UI.
+- The looked-up legal description is **always** user-confirmed before use.
+- CAD adapters must never throw — return `{ error, extracted: null }`.
 
 ## Setup
 
@@ -119,11 +130,13 @@ shell, ensure `/opt/homebrew/bin` is in PATH.
 
 ## Not done yet
 
-- Supabase: staging project exists (`trec-offer-staging`); prod project not
-  created yet. No schema, no RLS policies, no migrations.
-- Vercel project not created; import repo, set Production Branch = `main`, add a
-  stable `staging` branch domain, and scope env vars (Production vs Preview+
-  branch `staging`) per `docs/environments.md`.
-- No real auth UI or session gating (stub in `updateSession`).
-- No TREC forms, field mappings, or offer data model.
+- Prereqs for slice 1 to run: `ANTHROPIC_API_KEY` (local + Vercel Preview/
+  staging), Supabase magic-link setup + the `chrisflips01@gmail.com` account
+  (`supabase/README.md`), `0001_profiles.sql` applied to staging.
+- Production Supabase project not created. Vercel: prod-scoped env vars +
+  `ANTHROPIC_API_KEY` still needed for a real prod deploy.
+- Tarrant / Denton / Collin CAD adapters (manual entry only for now).
+- Slices 2–4: ask-every-time fields, TREC 20-19 field map + PDF fill, saved
+  defaults / account settings, `deals` persistence. Spec §7 field list;
+  field inventory in `docs/trec-field-inventory.txt`.
 - No tests configured.

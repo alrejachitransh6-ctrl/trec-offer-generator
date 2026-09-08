@@ -91,4 +91,19 @@ export const serverEnv = {
   get SUPABASE_SECRET_KEY(): string {
     return required("SUPABASE_SECRET_KEY", process.env.SUPABASE_SECRET_KEY);
   },
+  /** Anthropic API key for runtime AI calls (legal-description extraction, etc.). */
+  get ANTHROPIC_API_KEY(): string {
+    return required("ANTHROPIC_API_KEY", process.env.ANTHROPIC_API_KEY);
+  },
+  /**
+   * Comma-separated allowlist of email addresses permitted to sign in.
+   * Backstop for the Supabase dashboard's sign-up restriction — magic-link
+   * requests and confirmations for any other address are rejected.
+   */
+  get authAllowedEmails(): string[] {
+    return (process.env.AUTH_ALLOWED_EMAILS ?? "")
+      .split(",")
+      .map((e) => e.trim().toLowerCase())
+      .filter(Boolean);
+  },
 };

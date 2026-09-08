@@ -45,15 +45,29 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Route protection lives here once auth pages exist. Example:
-  //
-  // const isAuthRoute = request.nextUrl.pathname.startsWith("/login");
-  // if (!user && !isAuthRoute) {
-  //   const url = request.nextUrl.clone();
-  //   url.pathname = "/login";
-  //   return NextResponse.redirect(url);
-  // }
-  void user;
+  const { pathname } = request.nextUrl;
+
+  // Coarse gate only. The allowlist check + canonical redirect live in
+  // `src/app/(app)/layout.tsx` via `requireUser()`.
+  const isProtected = PROTECTED_PREFIXES.some(
+    (p) => pathname === p || pathname.startsWith(`${p}/`),
+  );
+
+  if (!user && isProtected) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    url.searchParams.set("next", pathname);
+    return NextResponse.redirect(url);
+  }
+
+  if (user && pathname === "/login") {
+    const url = request.nextUrl.clone();
+    url.pathname = "/lookup";
+    url.search = "";
+    return NextResponse.redirect(url);
+  }
 
   return supabaseResponse;
 }
+
+const PROTECTED_PREFIXES = ["/lookup", "/dashboard", "/settings"];
