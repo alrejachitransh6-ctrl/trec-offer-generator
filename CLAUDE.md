@@ -52,7 +52,7 @@ Full runbook, including the one-time Vercel/Supabase account setup: see
   / `params` / `searchParams` are **async**. Read `node_modules/next/dist/docs/`
   before writing framework code (see `AGENTS.md`).
 - **Tailwind CSS v4** — configured via `@tailwindcss/postcss`, no `tailwind.config`.
-- **Supabase** — Auth (magic link) + Postgres, via `@supabase/ssr`.
+- **Supabase** — Auth (email+password, magic-link fallback) + Postgres, via `@supabase/ssr`.
 - **pdf-lib** — fills AcroForm fields in PDF templates (later slice).
 - **`@anthropic-ai/sdk`** — runtime AI (legal-description extraction).
 - **`zod`** — request + AI-output validation. **`cheerio`** — CAD HTML parsing.
@@ -63,12 +63,12 @@ Full runbook, including the one-time Vercel/Supabase account setup: see
 ```
 src/
   app/
-    (auth)/login/           magic-link sign-in
+    (auth)/login/           email+password sign-in (magic-link fallback)
     (app)/layout.tsx        requireUser() gate for everything below
     (app)/lookup/           legal-description lookup + "start deal" (slice 1)
     (app)/deals/            deal list + /deals/[id] wizard (slice 2)
     (app)/dashboard/        placeholder
-    auth/callback/route.ts  magic-link (PKCE code) → session + allowlist re-check
+    auth/callback/page.tsx  client — ?code= or #access_token= → session, route on
     auth/signout/route.ts   POST → sign out
     api/health, api/legal-lookup
     api/deals (POST), api/deals/[id] (GET/PUT), api/deals/[id]/interpret (POST)

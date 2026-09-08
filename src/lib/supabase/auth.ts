@@ -20,12 +20,17 @@ export async function getUser(): Promise<User | null> {
 
 /**
  * Require an authenticated, allowlisted user. Redirects to `/login` when absent
- * (for use in Server Components / layouts). Returns the user otherwise.
+ * (for use in Server Components / layouts). Returns the user otherwise. This is
+ * the single enforcement point for the email allowlist — an authenticated but
+ * non-allowlisted user is signed out here.
  */
 export async function requireUser(): Promise<User> {
   const user = await getUser();
-  if (!user || !isEmailAllowed(user.email)) {
-    redirect("/login");
+  if (!user) redirect("/login");
+  if (!isEmailAllowed(user.email)) {
+    const supabase = await createClient();
+    await supabase.auth.signOut();
+    redirect("/login?error=not_allowed");
   }
   return user;
 }

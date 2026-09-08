@@ -4,6 +4,11 @@ Notable changes to the project. Newest first.
 
 ## Unreleased
 
+- Auth: **email + password** is now the primary sign-in (magic link kept as a
+  fallback). Passwords send no email, sidestepping Supabase's built-in-SMTP
+  rate limit. `/auth/callback` is now a client page that also handles the
+  implicit `#access_token=` flow (dashboard-generated links), not just `?code=`.
+  `requireUser()` signs out an authenticated-but-not-allowlisted user.
 - Editable Buyer default (§1): `profiles.buyer_name_info`
   (`0003_profiles_buyer_info.sql`). The Buyer field in the deal wizard is now
   editable (was read-only "not set"), with an opt-in "set as my default for new

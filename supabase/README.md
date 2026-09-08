@@ -54,32 +54,36 @@ Order so far: `0001_profiles.sql`, `0002_deals.sql`,
 `0003_profiles_buyer_info.sql`. Apply to **staging** (`aggwvdaakdduzsgztdsz`)
 first, verify, then production.
 
-## Auth setup (magic link)
+## Auth setup
 
-Sign-in is passwordless magic link, restricted to a fixed set of users. This
-works with Supabase's **default** email templates — no custom SMTP needed.
+Sign-in is **email + password** (primary) with **magic link** as a fallback,
+restricted to a fixed set of users provisioned by hand. Password sign-in sends
+no email, so it isn't affected by Supabase's built-in-SMTP rate limit
+(~2–4 emails/hour) — magic link is.
 
-1. **Authentication → Providers → Email**: enable. Turn **off** "Confirm email"
-   (we only ever send magic links to pre-created accounts).
-2. **Authentication → Sign-ups**: disable open sign-ups. (`shouldCreateUser` is
-   already `false` client-side.)
+1. **Authentication → Providers → Email**: enable. Turn **off** "Confirm email".
+2. **Authentication → Sign-ups**: disable open sign-ups (`shouldCreateUser` is
+   already `false` client-side).
 3. **Authentication → URL Configuration**:
-   - **Site URL**: the staging URL (and `http://localhost:3000` works for local
-     because it's also added below).
-   - **Redirect URLs**: add `http://localhost:3000/**`, `<staging-url>/**`, and
-     later `<prod-url>/**`.
-     The default email link (`{{ .ConfirmationURL }}`) verifies at Supabase and
-     redirects to `<emailRedirectTo>?code=…`, which the app's `/auth/callback`
-     route exchanges for a session. No email-template edits required.
-4. **Authentication → Users → Add user**: create each allowed account
-   (currently `chrisflips01@gmail.com`), "Auto Confirm User" on. The
-   `on_auth_user_created` trigger adds their `profiles` row.
-5. Set `AUTH_ALLOWED_EMAILS` (same addresses) locally and in Vercel.
+   - **Site URL**: the staging branch URL (this is where dashboard-generated
+     links redirect).
+   - **Redirect URLs**: `http://localhost:3000/**`, `<staging-url>/**`, later
+     `<prod-url>/**`.
+4. **Authentication → Users → Add user**: for each allowed person set an
+   email + password and turn on "Auto Confirm User". The `on_auth_user_created`
+   trigger adds their `profiles` row. Give them the password out-of-band; they
+   sign in at `/login`.
+5. Set `AUTH_ALLOWED_EMAILS` (comma-separated, same addresses) locally and in
+   Vercel (Preview scope, branch `staging`). Redeploy after changing it.
 
-> Note: the default link uses the PKCE code flow, so the magic link must be
-> opened in the **same browser** that requested it. Fine for local/staging;
-> revisit with custom SMTP + a `token_hash` template if cross-device links are
-> needed.
+`/auth/callback` is a client page that accepts both link styles — PKCE
+(`?code=`, from the app's own magic-link request) and implicit
+(`#access_token=`, from a link generated in the Supabase dashboard). The email
+allowlist is enforced by `requireUser()` in `src/app/(app)/layout.tsx`, which
+signs out anyone not on the list.
+
+> Rate-limited on magic-link email? Add a user with a password instead, or
+> Authentication → Users → (user) → **Generate link** and open it yourself.
 
 ## Environment
 

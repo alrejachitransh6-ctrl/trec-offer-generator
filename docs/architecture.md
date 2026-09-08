@@ -79,11 +79,14 @@ writing PDF fields, all DB reads/writes.
 Route protection: `updateSession` coarsely redirects unauthenticated requests
 for `/lookup`, `/dashboard`, `/settings` to `/login`. The canonical check —
 session **and** email allowlist (`AUTH_ALLOWED_EMAILS`) — is `requireUser()` in
-`src/app/(app)/layout.tsx`. Sign-in is magic link only (`signInWithOtp`,
-`shouldCreateUser: false`); accounts are created in the Supabase dashboard.
-The email link uses Supabase's default template → `/auth/callback` exchanges
-the PKCE `code` for a session, re-checks the allowlist, and signs out anyone
-not on it.
+`src/app/(app)/layout.tsx` — it also signs out an authenticated user whose
+email isn't allowlisted. Sign-in is **email + password** (`signInWithPassword`)
+with **magic link** as a fallback (`signInWithOtp`, `shouldCreateUser: false`);
+accounts are created by hand in the Supabase dashboard. Password sign-in avoids
+Supabase's built-in-SMTP rate limit. `/auth/callback` is a **client page** that
+accepts both link styles — `?code=` (PKCE) and `#access_token=` (implicit, e.g.
+a dashboard-generated link) — then routes on; the allowlist check is downstream
+in the layout.
 
 ## PDF form filling
 
@@ -114,12 +117,12 @@ not on it.
 ```
 src/
   app/
-    (auth)/login/      magic-link sign-in
+    (auth)/login/      email+password sign-in (magic-link fallback)
     (app)/             authenticated routes — layout.tsx runs requireUser()
       lookup/          legal-description lookup + "start deal" (slice 1)
       deals/           deal list + [id] wizard (slice 2)
       dashboard/       placeholder
-    auth/callback/     magic-link (PKCE code) → session + allowlist re-check
+    auth/callback/     client page — ?code= or #access_token= → session, route on
     auth/signout/      POST → sign out
     api/health, api/legal-lookup
     api/deals, api/deals/[id], api/deals/[id]/interpret
