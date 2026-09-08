@@ -3,7 +3,6 @@
 import { useState } from "react";
 
 import { createClient } from "@/lib/supabase/client";
-import { clientEnv } from "@/lib/env";
 
 type Status =
   | { kind: "idle" }
@@ -23,11 +22,13 @@ export function LoginForm({ next }: { next?: string }) {
     setStatus({ kind: "sending" });
     const supabase = createClient();
 
+    // Use the actual origin the user is on — works on localhost, the staging
+    // branch URL, and production without any per-environment config. Supabase
+    // just needs the origin in its allowed Redirect URLs.
     const redirectPath = next && next.startsWith("/") ? next : "/lookup";
-    const emailRedirectTo = `${clientEnv.NEXT_PUBLIC_SITE_URL.replace(
-      /\/$/,
-      "",
-    )}/auth/callback?next=${encodeURIComponent(redirectPath)}`;
+    const emailRedirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(
+      redirectPath,
+    )}`;
 
     // shouldCreateUser: false — accounts are provisioned in the Supabase
     // dashboard (see supabase/README.md). Only known users get a link; the
