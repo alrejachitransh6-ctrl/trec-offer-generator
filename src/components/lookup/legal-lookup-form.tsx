@@ -102,7 +102,7 @@ export function LegalLookupForm() {
             required
             value={address}
             onChange={(e) => setAddress(e.target.value)}
-            placeholder="1121 Angie Ln"
+            placeholder="9820 Ash Creek Dr, Dallas TX 75228"
             className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-900"
           />
         </label>

@@ -1,6 +1,7 @@
 import * as cheerio from "cheerio";
 
 import { extractLegalDescription } from "@/lib/ai/extract-legal-description";
+import { parseStreetAddress } from "@/lib/ai/parse-address";
 import type { CadAdapter, CadLookupResult } from "@/lib/counties/types";
 
 const BASE = "https://www.dallascad.org";
@@ -9,74 +10,6 @@ const UA =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 " +
   "(KHTML, like Gecko) Chrome/128.0 Safari/537.36";
 const TIMEOUT_MS = 15_000;
-
-const STREET_SUFFIXES = new Set([
-  "st",
-  "street",
-  "ave",
-  "avenue",
-  "rd",
-  "road",
-  "dr",
-  "drive",
-  "ln",
-  "lane",
-  "blvd",
-  "boulevard",
-  "ct",
-  "court",
-  "cir",
-  "circle",
-  "pl",
-  "place",
-  "way",
-  "ter",
-  "terrace",
-  "pkwy",
-  "parkway",
-  "trl",
-  "trail",
-  "hwy",
-  "highway",
-  "loop",
-  "pass",
-  "path",
-  "run",
-]);
-const DIRECTIONS = new Set(["n", "s", "e", "w", "ne", "nw", "se", "sw"]);
-
-interface ParsedAddress {
-  number: string;
-  direction: string;
-  street: string;
-}
-
-/** Split "1121 N Angie Ln, Dallas TX 75211" into DCAD search fields. */
-export function parseAddress(input: string): ParsedAddress | null {
-  const firstPart = input.split(",")[0]!.trim();
-  const tokens = firstPart.split(/\s+/).filter(Boolean);
-  if (tokens.length < 2) return null;
-
-  const number = tokens.shift()!;
-  if (!/^\d+[A-Za-z]?$/.test(number)) return null;
-
-  let direction = "";
-  if (tokens.length > 1 && DIRECTIONS.has(tokens[0]!.toLowerCase())) {
-    direction = tokens.shift()!.toUpperCase();
-  }
-
-  // Drop a trailing street-type suffix — DCAD matches on the base street name.
-  if (
-    tokens.length > 1 &&
-    STREET_SUFFIXES.has(tokens[tokens.length - 1]!.toLowerCase())
-  ) {
-    tokens.pop();
-  }
-
-  const street = tokens.join(" ").slice(0, 23);
-  if (!street) return null;
-  return { number, direction, street };
-}
 
 async function fetchText(url: string, init?: RequestInit): Promise<Response> {
   const controller = new AbortController();
@@ -125,6 +58,51 @@ function parseCandidates($: cheerio.CheerioAPI): Candidate[] {
   return out;
 }
 
+/**
+ * Run one DallasCAD address search. `__EVENTTARGET=cmdSubmit` is required —
+ * without it the site just redisplays the empty form. DCAD matches on the base
+ * street name (no suffix), case-insensitively.
+ */
+async function runSearch(
+  cookie: string,
+  hidden: Record<string, string>,
+  number: string,
+  streetName: string,
+  direction: string,
+): Promise<Candidate[]> {
+  const body = new URLSearchParams({
+    __EVENTTARGET: "cmdSubmit",
+    __EVENTARGUMENT: "",
+    __VIEWSTATE: hidden.__VIEWSTATE ?? "",
+    __VIEWSTATEGENERATOR: hidden.__VIEWSTATEGENERATOR ?? "",
+    __EVENTVALIDATION: hidden.__EVENTVALIDATION ?? "",
+    txtAddrNum: number,
+    listStDir: direction,
+    txtStName: streetName.slice(0, 23),
+    txtBldgID: "",
+    txtUnitID: "",
+    listCity: "",
+    txtAddrNum1: "",
+    txtAddrNum2: "",
+    "AcctTypeCheckList1:chkAcctType:0": "1",
+    "AcctTypeCheckList1:chkAcctType:1": "2",
+    "AcctTypeCheckList1:chkAcctType:2": "3",
+    cmdSubmit: "Search",
+  });
+
+  const res = await fetchText(SEARCH_URL, {
+    method: "POST",
+    headers: {
+      "content-type": "application/x-www-form-urlencoded",
+      origin: BASE,
+      referer: SEARCH_URL,
+      ...(cookie ? { cookie } : {}),
+    },
+    body: body.toString(),
+  });
+  return parseCandidates(cheerio.load(await res.text()));
+}
+
 /** Visible text of a DCAD detail page, trimmed for the model. */
 function detailPageText(html: string): string {
   const $ = cheerio.load(html);
@@ -159,14 +137,14 @@ export const dallasAdapter: CadAdapter = {
   id: "dallas",
 
   async lookup(address: string): Promise<CadLookupResult> {
-    const parsed = parseAddress(address);
-    if (!parsed) {
+    const parsed = await parseStreetAddress(address);
+    if (!parsed.streetNumber || !parsed.streetName) {
       return {
         sourceUrl: null,
         pageContext: "",
         error:
           "Could not read a street number and name from that address. " +
-          'Try e.g. "1121 Angie Ln".',
+          'Try including both, e.g. "9820 Ash Creek Dr".',
         extracted: null,
       };
     }
@@ -179,57 +157,49 @@ export const dallasAdapter: CadAdapter = {
         .join("; ");
       const hidden = readHiddenFields(cheerio.load(await formRes.text()));
 
-      // 2. Post the search. `__EVENTTARGET=cmdSubmit` is required — without it
-      //    the site just redisplays the form.
-      const body = new URLSearchParams({
-        __EVENTTARGET: "cmdSubmit",
-        __EVENTARGUMENT: "",
-        __VIEWSTATE: hidden.__VIEWSTATE ?? "",
-        __VIEWSTATEGENERATOR: hidden.__VIEWSTATEGENERATOR ?? "",
-        __EVENTVALIDATION: hidden.__EVENTVALIDATION ?? "",
-        txtAddrNum: parsed.number,
-        listStDir: parsed.direction,
-        txtStName: parsed.street,
-        txtBldgID: "",
-        txtUnitID: "",
-        listCity: "",
-        txtAddrNum1: "",
-        txtAddrNum2: "",
-        "AcctTypeCheckList1:chkAcctType:0": "1",
-        "AcctTypeCheckList1:chkAcctType:1": "2",
-        "AcctTypeCheckList1:chkAcctType:2": "3",
-        cmdSubmit: "Search",
-      });
-
-      const resultsRes = await fetchText(SEARCH_URL, {
-        method: "POST",
-        headers: {
-          "content-type": "application/x-www-form-urlencoded",
-          origin: BASE,
-          referer: SEARCH_URL,
-          ...(cookie ? { cookie } : {}),
-        },
-        body: body.toString(),
-      });
-      const candidates = parseCandidates(cheerio.load(await resultsRes.text()));
+      // 2. Search on the plain street name first (the address parser
+      //    occasionally invents a directional). Only retry *with* the
+      //    directional if the plain search finds nothing.
+      let candidates = await runSearch(
+        cookie,
+        hidden,
+        parsed.streetNumber,
+        parsed.streetName,
+        "",
+      );
+      if (candidates.length === 0 && parsed.direction) {
+        candidates = await runSearch(
+          cookie,
+          hidden,
+          parsed.streetNumber,
+          parsed.streetName,
+          parsed.direction,
+        );
+      }
 
       if (candidates.length === 0) {
         return {
-          sourceUrl: `${BASE}/SearchAddr.aspx`,
+          sourceUrl: SEARCH_URL,
           pageContext: "",
           error:
-            "No matching property found on DallasCAD for that address. " +
+            `No match on DallasCAD for "${parsed.streetNumber} ${parsed.streetName}". ` +
             "Check the address, or enter the legal description manually.",
           extracted: null,
         };
       }
 
-      // 3. Fetch the (best) detail page. If several matched, prefer an exact
-      //    street-number match, else take the first and note the ambiguity.
-      const exact = candidates.find((c) =>
-        c.label.toLowerCase().startsWith(parsed.number.toLowerCase()),
-      );
-      const chosen = exact ?? candidates[0]!;
+      // 3. Fetch the best detail page. If several matched, prefer one whose
+      //    label starts with the street number (and matches the directional
+      //    when we have one), else take the first and note the ambiguity.
+      const numMatch = (c: Candidate) =>
+        c.label.toLowerCase().startsWith(parsed.streetNumber.toLowerCase());
+      const dirRe = parsed.direction
+        ? new RegExp(`\\b${parsed.direction}\\b`, "i")
+        : null;
+      const chosen =
+        (dirRe && candidates.find((c) => numMatch(c) && dirRe.test(c.label))) ||
+        candidates.find(numMatch) ||
+        candidates[0]!;
       const detailRes = await fetchText(chosen.detailUrl, {
         headers: cookie ? { cookie } : {},
       });
@@ -284,7 +254,7 @@ export const dallasAdapter: CadAdapter = {
       }
     } catch (err) {
       return {
-        sourceUrl: `${BASE}/SearchAddr.aspx`,
+        sourceUrl: SEARCH_URL,
         pageContext: "",
         error: `DallasCAD lookup failed (${errMessage(
           err,

@@ -8,9 +8,9 @@ export default function LookupPage() {
       <div className="flex flex-col gap-1">
         <h1 className="text-xl font-semibold">Legal description lookup</h1>
         <p className="text-sm text-zinc-500">
-          Enter a property address. We look it up on the county appraisal
-          district site and pull the legal description — you confirm it before
-          it&apos;s used anywhere.
+          Enter a property address however you like — we look it up on the
+          county appraisal district site and pull the legal description. You
+          confirm it before it&apos;s used anywhere.
         </p>
       </div>
       <LegalLookupForm />

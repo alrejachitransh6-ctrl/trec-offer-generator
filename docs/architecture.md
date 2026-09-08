@@ -16,6 +16,11 @@
 
 AI is used **at runtime**, deliberately scoped:
 
+- **`src/lib/ai/parse-address.ts`** — `claude-haiku-4-5` normalises a free-form
+  address ("9820 ash creek dr dallas texas 75228") into `{ streetNumber,
+streetName, direction }` for the CAD search. Deterministic post-processing
+  strips street suffixes / stray markup; a regex heuristic is the fallback if
+  the call fails.
 - **`src/lib/ai/extract-legal-description.ts`** — given the text of a county
   appraisal district page, `claude-sonnet-5` returns a structured
   `LegalDescription` (forced tool call, zod-validated). It is told to extract

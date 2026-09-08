@@ -10,7 +10,9 @@ Notable changes to the project. Newest first.
     `(app)` route group gated by `requireUser()`; sign-out. No custom SMTP.
   - County registry (Dallas/Tarrant/Denton/Collin); Dallas CAD adapter does a
     real DallasCAD address search + detail-page fetch.
-  - Runtime AI: `claude-sonnet-5` extracts the legal description from the CAD
+  - Runtime AI: `claude-haiku-4-5` normalises the free-form address; the DCAD
+    adapter searches on the base street name (suffix stripped, directional
+    retried); `claude-sonnet-5` extracts the legal description from the CAD
     page text (`src/lib/ai/`). Result always shown for explicit confirmation.
   - `POST /api/legal-lookup`; `/lookup` UI with confidence badge, source link,
     "what the lookup read", editable fields, and a Confirm step.
