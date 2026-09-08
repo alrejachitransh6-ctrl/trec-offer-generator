@@ -1,36 +1,51 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TREC Offer Generator
 
-## Getting Started
+Web app for generating filled TREC (Texas Real Estate Commission) real-estate
+contract forms from structured offer data.
 
-First, run the development server:
+## Stack
+
+- [Next.js 16](https://nextjs.org) (App Router, TypeScript, `src/`)
+- Tailwind CSS v4
+- [Supabase](https://supabase.com) — Auth + Postgres, via `@supabase/ssr`
+- [pdf-lib](https://pdf-lib.js.org) — PDF AcroForm filling
+
+## Getting started
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp .env.example .env.local     # fill in the STAGING Supabase project values
+npm install
+npm run dev                     # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Requires Node 20+ (`node` 26.x installed via Homebrew on this machine).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environments
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Two isolated deployments, each with its own Supabase project:
 
-## Learn More
+| Branch    | Environment                       | Supabase project     |
+| --------- | --------------------------------- | -------------------- |
+| `staging` | staging (default working branch)  | `trec-offer-staging` |
+| `main`    | production (promote deliberately) | `trec-offer-prod`    |
 
-To learn more about Next.js, take a look at the following resources:
+Pushing a branch auto-deploys it to the matching Vercel environment. **Do routine
+work on `staging`; only merge to `main` to go live.** Full setup and promotion
+runbook: [`docs/environments.md`](docs/environments.md).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Scripts
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Command                           | Purpose                  |
+| --------------------------------- | ------------------------ |
+| `npm run dev`                     | Dev server               |
+| `npm run build` / `npm start`     | Production build / serve |
+| `npm run lint`                    | ESLint                   |
+| `npm run typecheck`               | `tsc --noEmit`           |
+| `npm run format` / `format:check` | Prettier                 |
 
-## Deploy on Vercel
+## Docs
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [`docs/architecture.md`](docs/architecture.md) — stack, request lifecycle, directory map
+- [`docs/environments.md`](docs/environments.md) — staging/production split, deployment
+- [`CLAUDE.md`](CLAUDE.md) — context for AI coding sessions
+- [`supabase/README.md`](supabase/README.md) — local Supabase + migrations
