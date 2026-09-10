@@ -4,6 +4,16 @@ Notable changes to the project. Newest first.
 
 ## Unreleased
 
+- CAD lookup: also extracts the **owner of record** (`extract-cad-property.ts`,
+  renamed from `extract-legal-description.ts`), normalised to natural name order
+  ("John Q Smith" / Title Case for entities), leak-guarded. Pre-fills the Seller
+  field on `/lookup` and, at deal creation, both §1 Seller and the contract
+  signature line. Wired for Dallas; shared for the rest.
+- The CAD **source URL** is now persisted onto the deal (`legalDescription.
+sourceUrl` in the jsonb — no migration) and shown as a "View source page"
+  link on `/deals/[id]`.
+- Recon: Tarrant/Denton/Collin all run on the TrueProdigy `*.prodigycad.com`
+  platform → one JSON-API adapter, not three scrapers (see `docs/`).
 - Auth: **email + password** is now the primary sign-in (magic link kept as a
   fallback). Passwords send no email, sidestepping Supabase's built-in-SMTP
   rate limit. `/auth/callback` is now a client page that also handles the

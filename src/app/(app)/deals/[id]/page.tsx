@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { DealWizard } from "@/components/deals/deal-wizard";
+import { countyMeta } from "@/lib/counties/list";
 import { getDeal } from "@/lib/deals/repo";
 import { dealWarnings } from "@/lib/trec/readiness";
 
@@ -17,6 +18,8 @@ export default async function DealPage({
   if (!deal) notFound();
 
   const warnings = dealWarnings(deal);
+  const county = countyMeta(deal.countyId);
+  const sourceUrl = deal.legalDescription.sourceUrl || county.cadUrl;
 
   return (
     <main className="mx-auto flex max-w-2xl flex-col gap-6 p-8">
@@ -25,9 +28,20 @@ export default async function DealPage({
           ← All deals
         </Link>
         <h1 className="text-xl font-semibold">{deal.propertyAddress}</h1>
-        <p className="font-mono text-sm text-zinc-500">
-          {deal.legalDescription.legalDescription}
-        </p>
+        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          <p className="font-mono text-sm text-zinc-500">
+            {deal.legalDescription.legalDescription}
+          </p>
+          <a
+            href={sourceUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="text-xs text-zinc-500 underline"
+          >
+            View source page{" "}
+            {deal.legalDescription.sourceUrl ? "" : `(${county.label} CAD)`}
+          </a>
+        </div>
         <p className="text-xs text-zinc-400">
           Lot {deal.legalDescription.lot || "—"} · Block{" "}
           {deal.legalDescription.block || "—"} ·{" "}

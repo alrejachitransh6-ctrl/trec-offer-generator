@@ -1,6 +1,6 @@
 import * as cheerio from "cheerio";
 
-import { extractLegalDescription } from "@/lib/ai/extract-legal-description";
+import { extractCadProperty } from "@/lib/ai/extract-cad-property";
 import { parseStreetAddress } from "@/lib/ai/parse-address";
 import type { CadAdapter, CadLookupResult } from "@/lib/counties/types";
 
@@ -225,7 +225,7 @@ export const dallasAdapter: CadAdapter = {
 
       // 4. Extract with the model.
       try {
-        const extracted = await extractLegalDescription({
+        const extracted = await extractCadProperty({
           address,
           county: "Dallas",
           pageText,
@@ -233,14 +233,13 @@ export const dallasAdapter: CadAdapter = {
         return {
           sourceUrl: chosen.detailUrl,
           pageContext: pageText,
-          extracted: ambiguityNote
-            ? {
-                ...extracted,
-                notes: [ambiguityNote, extracted.notes]
-                  .filter(Boolean)
-                  .join(" "),
-              }
-            : extracted,
+          extracted: {
+            ...extracted,
+            sourceUrl: chosen.detailUrl,
+            notes: ambiguityNote
+              ? [ambiguityNote, extracted.notes].filter(Boolean).join(" ")
+              : extracted.notes,
+          },
         };
       } catch (err) {
         return {

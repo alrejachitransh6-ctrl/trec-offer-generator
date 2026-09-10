@@ -97,6 +97,8 @@ export const dealCreateSchema = z.object({
   propertyAddress: z.string().trim().min(1).max(200),
   countyId: countyIdSchema,
   legalDescription: legalDescriptionSchema,
+  /** Pre-fills §1 Seller + the signature line; from the CAD owner or manual. */
+  sellerNameInfo: z.string().max(500).optional(),
 });
 export type DealCreate = z.infer<typeof dealCreateSchema>;
 

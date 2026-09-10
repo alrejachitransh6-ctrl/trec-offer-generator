@@ -21,10 +21,14 @@ AI is used **at runtime**, deliberately scoped:
 streetName, direction }` for the CAD search. Deterministic post-processing
   strips street suffixes / stray markup; a regex heuristic is the fallback if
   the call fails.
-- **`src/lib/ai/extract-legal-description.ts`** — given the text of a county
+- **`src/lib/ai/extract-cad-property.ts`** — given the text of a county
   appraisal district page, `claude-sonnet-5` returns a structured
-  `LegalDescription` (forced tool call, zod-validated). It is told to extract
-  only what's present and never infer.
+  `LegalDescription` **plus `ownerName`** (normalised to natural order —
+  "John Q Smith", or Title Case for entities/trusts), forced tool call,
+  zod-validated. Told to extract only what's present, never infer; a leaked or
+  non-name `ownerName` is dropped rather than surfaced. The owner pre-fills the
+  Seller field and the signature line — always user-confirmed. The CAD page URL
+  (`sourceUrl`) is carried into the deal's `legal_description` jsonb.
 - **`src/lib/ai/interpret-overrides.ts`** — maps a deal's free-text "anything
   different" note onto the fixed `OVERRIDE_TARGETS` catalog
   (`src/lib/deals/override-catalog.ts`) via `claude-sonnet-5`. Returns
@@ -131,7 +135,7 @@ src/
   lib/
     env.ts             validated env access + APP_ENV guard
     supabase/          client / server / proxy factories, auth.ts, DB types
-    ai/                Anthropic client, parse-address, extract-legal-description,
+    ai/                Anthropic client, parse-address, extract-cad-property,
                        interpret-overrides
     counties/          list.ts (client), registry.ts + adapters/ (server)
     deals/             repo.ts (server CRUD), defaults.ts, override-catalog.ts

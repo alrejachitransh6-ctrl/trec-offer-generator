@@ -125,6 +125,11 @@ export async function createDeal(input: DealCreate): Promise<string> {
   if (!user) throw new Error("Not authenticated");
 
   const supabase = await createClient();
+  const seller = input.sellerNameInfo?.trim() ?? "";
+  const terms = dealTermsSchema.parse({
+    seller: { nameInfo: seller },
+    signatories: { sellerNames: seller },
+  });
   const insert: DealInsert = {
     user_id: user.id,
     property_address: input.propertyAddress,
@@ -134,7 +139,7 @@ export async function createDeal(input: DealCreate): Promise<string> {
       ...DEFAULT_PREFERENCES,
       buyerNameInfo: await getBuyerDefault(),
     } as unknown as Json,
-    terms: dealTermsSchema.parse({}) as unknown as Json,
+    terms: terms as unknown as Json,
   };
   const { data, error } = await supabase
     .from("deals")

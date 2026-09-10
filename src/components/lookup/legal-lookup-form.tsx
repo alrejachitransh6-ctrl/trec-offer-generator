@@ -22,6 +22,7 @@ interface EditableLegal {
   block: string;
   addition: string;
   city: string;
+  seller: string;
 }
 
 const EMPTY_EDITABLE: EditableLegal = {
@@ -30,6 +31,7 @@ const EMPTY_EDITABLE: EditableLegal = {
   block: "",
   addition: "",
   city: "",
+  seller: "",
 };
 
 function toEditable(l: LegalDescription | null): EditableLegal {
@@ -40,6 +42,7 @@ function toEditable(l: LegalDescription | null): EditableLegal {
     block: l.block ?? "",
     addition: l.addition ?? "",
     city: l.city ?? "",
+    seller: l.ownerName ?? "",
   };
 }
 
@@ -92,6 +95,7 @@ export function LegalLookupForm() {
         body: JSON.stringify({
           propertyAddress: address.trim(),
           countyId,
+          sellerNameInfo: editable.seller.trim() || undefined,
           legalDescription: {
             legalDescription: editable.legalDescription.trim(),
             lot: editable.lot.trim() || undefined,
@@ -101,6 +105,9 @@ export function LegalLookupForm() {
             county:
               (state.kind === "done" && state.response.extracted?.county) ||
               county.label,
+            ownerName: editable.seller.trim() || undefined,
+            sourceUrl:
+              (state.kind === "done" && state.response.sourceUrl) || undefined,
             confidence: "high" as const,
           },
         }),
@@ -268,6 +275,20 @@ export function LegalLookupForm() {
               </label>
             ))}
           </div>
+
+          <label className="flex flex-col gap-1 text-sm">
+            <span className="text-zinc-600 dark:text-zinc-400">
+              Seller (owner of record — confirm)
+            </span>
+            <input
+              value={editable.seller}
+              onChange={(e) =>
+                setEditable((s) => ({ ...s, seller: e.target.value }))
+              }
+              placeholder="From tax records; edit if the seller differs (trust, estate, recent sale)"
+              className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-900"
+            />
+          </label>
 
           {response.pageContext && (
             <div>

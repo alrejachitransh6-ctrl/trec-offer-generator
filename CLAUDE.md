@@ -6,9 +6,12 @@ Web app for generating filled TREC (Texas Real Estate Commission) real-estate
 contract forms from structured offer data. A user enters offer details, the app
 fills the corresponding blank TREC PDF form(s), and returns a completed PDF.
 
-**Status:** scaffold only. Environment, dependencies, folder structure, and the
-staging/production split are in place. No contract-specific logic has been
-written yet.
+**Status:** staging/prod split live. Built: slice 1 (address → CAD legal-
+description + owner lookup, confirm), slice 2 (deals, ask-every-time wizard,
+NL override interpreter), slice 3 (TREC 20-19 PDF fill + download). Dallas CAD
+adapter is live; Tarrant/Denton/Collin in progress (all on the TrueProdigy
+`*.prodigycad.com` platform — one JSON-API adapter, not three scrapers).
+Not built: editable `user_preferences` (slice 4), production Supabase project.
 
 ## ⚠️ Environments — read before doing anything
 
@@ -53,8 +56,8 @@ Full runbook, including the one-time Vercel/Supabase account setup: see
   before writing framework code (see `AGENTS.md`).
 - **Tailwind CSS v4** — configured via `@tailwindcss/postcss`, no `tailwind.config`.
 - **Supabase** — Auth (email+password, magic-link fallback) + Postgres, via `@supabase/ssr`.
-- **pdf-lib** — fills AcroForm fields in PDF templates (later slice).
-- **`@anthropic-ai/sdk`** — runtime AI (legal-description extraction).
+- **pdf-lib** — fills the TREC 20-19 (`src/lib/trec/`).
+- **`@anthropic-ai/sdk`** — runtime AI (CAD extraction, NL override interpret).
 - **`zod`** — request + AI-output validation. **`cheerio`** — CAD HTML parsing.
 - **Prettier** with `prettier-plugin-tailwindcss`.
 
@@ -79,7 +82,7 @@ src/
     env.ts                  validated env-var access + APP_ENV + prod/staging guard
     supabase/               client.ts / server.ts (async) / middleware.ts /
                             auth.ts (getUser, requireUser, isEmailAllowed)
-    ai/                     client.ts (MODELS), parse-address, extract-legal-description,
+    ai/                     client.ts (MODELS), parse-address, extract-cad-property,
                             interpret-overrides
     counties/               list.ts (client-safe meta), registry.ts + adapters/
                             (server; dallas.ts is live, others manual-entry)
@@ -89,8 +92,8 @@ src/
     validations/            legal-lookup.ts, deal.ts (zod)
     utils.ts
   proxy.ts                   Next 16 proxy → updateSession (coarse route gate)
-supabase/migrations/         0001_profiles.sql, 0002_deals.sql (apply via dashboard SQL editor)
-public/templates/            blank TREC 20-19 PDF (later slice)
+supabase/migrations/         000N_*.sql (apply via dashboard SQL editor)
+public/templates/            trec-20-19.pdf
 docs/spec.md                 feature spec — source of truth
 docs/architecture.md         fuller architecture notes
 ```
@@ -144,10 +147,12 @@ shell, ensure `/opt/homebrew/bin` is in PATH.
 
 ## Not done yet
 
-- Staging prereqs: `0002_deals.sql` must be applied (SQL editor). `0001` +
-  `ANTHROPIC_API_KEY` + magic-link setup already done.
+- Staging: apply every `supabase/migrations/*.sql` in order via the SQL editor
+  (0001–0003 done; new ones as added). Password auth is the primary login.
 - Production Supabase project not created; prod-scoped Vercel env vars pending.
-- Tarrant / Denton / Collin CAD adapters (manual entry only for now).
+- Tarrant / Denton / Collin CAD adapters — recon done (TrueProdigy JSON API at
+  `prod-container.trueprodigyapi.com`); build blocked while their backend is
+  down. Registry still `adapter: null` for these three → manual entry.
 - Slice 4: editable `user_preferences` (replaces `DEFAULT_PREFERENCES`).
 - Structural overrides (survey option, addenda checkboxes, §12B split) are not
   auto-applied to the PDF — `dealWarnings()` flags them for manual completion.

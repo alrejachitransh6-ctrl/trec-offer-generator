@@ -17,8 +17,16 @@ export const legalDescriptionSchema = z.object({
   addition: z.string().optional(),
   city: z.string().optional(),
   county: z.string(),
+  /**
+   * Current owner of record from the CAD, normalised to natural name order
+   * ("John Q Smith"). Usually the Seller on a resale — pre-fills §1 + the
+   * signature line, but the user confirms it (trusts/estates/recent transfers).
+   */
+  ownerName: z.string().optional(),
   confidence: z.enum(["high", "medium", "low"]),
   notes: z.string().optional(),
+  /** URL of the CAD page this came from — persisted onto the deal. */
+  sourceUrl: z.string().optional(),
 });
 export type LegalDescription = z.infer<typeof legalDescriptionSchema>;
 
